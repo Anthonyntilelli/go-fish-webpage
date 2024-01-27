@@ -1,10 +1,12 @@
 {
   "name": "go-fish-webpage",
   "version": "0.0.1",
-  "description": "Gofish webpage written in TypeScript",
+  "description": "Go fish webpage written in TypeScript",
   "main": "./dist/bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "live-server",
+    "watch": "tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "homepage": "https://github.com/Anthonyntilelli/go-fish-webpage#readme",
   "devDependencies": {
+    "live-server": "^1.2.2",
     "typescript": "^5.3.3"
   }
 }
