@@ -32,8 +32,10 @@ body {
   grid-area: cPoints;
 }
 
-.deck {
+.deck_grid {
   grid-area: deck;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hPoints {

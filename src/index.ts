@@ -5,6 +5,10 @@ enum suit {
   Spades = "♠",
 }
 
+enum turn {
+  human,
+  computer,
+}
 type card = { Value: string; Suit: suit };
 
 class Deck {
@@ -101,3 +105,29 @@ class Deck {
     return this.#cards.pop()!;
   }
 }
+
+class Table {
+  // #humanSide;
+  // #computerSide;
+  // #humanPoints;
+  // #computerPoints;
+  #deckEl = document.getElementById("main_deck") as HTMLUListElement;
+  #deckTemplate = document.getElementById(
+    "template-deck-cardBack"
+  ) as HTMLTemplateElement;
+  #deck = new Deck();
+  // currentTurn: turn;
+
+  constructor() {
+    this.#deckInit();
+  }
+  #deckInit() {
+    this.#deckEl.innerHTML = ""; // Clear inner html of deck
+    for (let i = 0; i <= this.#deck.remaining; i++) {
+      let clone = this.#deckTemplate.content.cloneNode(true);
+      this.#deckEl.appendChild(clone);
+    }
+  }
+}
+
+let table = new Table();

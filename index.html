@@ -29,8 +29,10 @@
       <div class="cPoints">
         <p>0</p>
       </div>
-      <div class="deck">
-        <p>deck</p>
+      <div class="deck_grid">
+        <div class="playingCards">
+          <ul class="deck" id="main_deck"></ul>
+        </div>
       </div>
       <div class="hPoints">
         <p>0</p>
@@ -48,5 +50,10 @@
     <footer class="footer">
       <h2>Footer</h2>
     </footer>
+    <template id="template-deck-cardBack">
+      <li>
+        <div class="card back">*</div>
+      </li>
+    </template>
   </body>
 </html>
