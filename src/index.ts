@@ -29,6 +29,23 @@ type hand = {
   K: card[];
 };
 
+type memory = {
+  [key: string]: boolean;
+  A: boolean;
+  2: boolean;
+  3: boolean;
+  4: boolean;
+  5: boolean;
+  6: boolean;
+  7: boolean;
+  8: boolean;
+  9: boolean;
+  10: boolean;
+  J: boolean;
+  Q: boolean;
+  K: boolean;
+};
+
 class Deck {
   #cards: card[];
 
@@ -117,7 +134,7 @@ class Deck {
   }
 
   // Throws an error on empty deck
-  pickACard(): card | never {
+  draw(): card | never {
     if (this.empty) {
       throw Error("No more cards in the deck");
     }
@@ -142,6 +159,7 @@ class Player {
     this._length++;
     this._hand[card.Value].push(card);
   }
+
   get length() {
     return this._length;
   }
@@ -160,6 +178,66 @@ class Player {
     const cards = this._hand[cardValue];
     this._hand[cardValue] = []; // Removing cards from hand
     return cards;
+  }
+}
+
+class ComputerPlayer extends Player {
+  #memory: memory;
+
+  constructor(cards: card[]) {
+    super(cards);
+    this.#memory = {
+      A: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
+      6: false,
+      7: false,
+      8: false,
+      9: false,
+      10: false,
+      J: false,
+      Q: false,
+      K: false,
+    };
+  }
+
+  // Chooses a card value from #memory and hand or select a card value at random from the hand
+  // Throws error on empty hand
+  guess(): string | never {
+    if (super.empty) throw Error("Cannot Guess on an empty hand.");
+
+    const possibleGuesses: string[] = [];
+    let guess = "";
+    for (let k of Object.keys(this._hand)) {
+      if (this.#memory[k] && this._hand[k].length !== 0) possibleGuesses.push(k);
+    }
+    if (possibleGuesses.length !== 0) {
+      // random guess from #memory + hand
+      guess = possibleGuesses[Math.floor(Math.random() * possibleGuesses.length)];
+      this.#memory[guess] = false;
+    } else {
+      // Random guess from hand
+      const cardValues = this.#handList();
+      guess = cardValues[Math.floor(Math.random() * cardValues.length)];
+    }
+    return guess;
+  }
+
+  askForCards(cardValue: string) {
+    this.#memory[cardValue] = true;
+    return super.askForCards(cardValue);
+  }
+
+  #handList() {
+    const cardValues: string[] = [];
+    for (let k of Object.keys(this._hand)) {
+      if (this._hand[k].length !== 0) {
+        cardValues.push(k);
+      }
+    }
+    return cardValues;
   }
 }
 
