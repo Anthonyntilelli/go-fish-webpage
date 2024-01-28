@@ -9,7 +9,25 @@ enum turn {
   human,
   computer,
 }
+
 type card = { Value: string; Suit: suit };
+
+type hand = {
+  [key: string]: card[];
+  A: card[];
+  2: card[];
+  3: card[];
+  4: card[];
+  5: card[];
+  6: card[];
+  7: card[];
+  8: card[];
+  9: card[];
+  10: card[];
+  J: card[];
+  Q: card[];
+  K: card[];
+};
 
 class Deck {
   #cards: card[];
@@ -104,6 +122,44 @@ class Deck {
       throw Error("No more cards in the deck");
     }
     return this.#cards.pop()!;
+  }
+}
+
+class Player {
+  protected _hand: hand;
+  protected _length: number;
+
+  constructor(cards: card[]) {
+    if (cards.length <= 0) throw Error("Hand Size must be greater then 0");
+    this._length = cards.length;
+    this._hand = { A: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [], J: [], Q: [], K: [] };
+    for (let card of cards) {
+      this._hand[card.Value].push(card);
+    }
+  }
+
+  addCardToHand(card: card) {
+    this._length++;
+    this._hand[card.Value].push(card);
+  }
+  get length() {
+    return this._length;
+  }
+
+  get empty() {
+    return this._length === 0;
+  }
+
+  toCardArray(): card[] {
+    return Object.values(this._hand).flat();
+  }
+
+  // return null if player does not have the card
+  askForCards(cardValue: string): card[] | null {
+    if (this._hand[cardValue] === undefined || this._hand[cardValue].length === 0) return null;
+    const cards = this._hand[cardValue];
+    this._hand[cardValue] = []; // Removing cards from hand
+    return cards;
   }
 }
 
