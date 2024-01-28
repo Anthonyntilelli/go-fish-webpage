@@ -4,6 +4,7 @@ body {
 .header {
   text-align: center;
 }
+
 .grid {
   display: grid;
   grid-template: 1fr 0.5fr 0.5fr 1fr / 0.25fr 1fr 1fr 0.25fr;
@@ -11,7 +12,7 @@ body {
     "cLabel computerHand computerHand computerHand"
     "cPoints deck deck hPoints"
     ". status status ."
-    "hLabel humanHand humanHand humanHand";
+    "humanHand humanHand humanHand hLabel";
   min-height: 100vh;
   row-gap: 1%;
 }

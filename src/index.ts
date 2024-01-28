@@ -89,6 +89,7 @@ class Deck {
       this.#cards[i] = t;
     }
   }
+
   get empty() {
     return this.#cards.length === 0;
   }
@@ -109,24 +110,43 @@ class Deck {
 class Table {
   // #humanSide;
   // #computerSide;
-  // #humanPoints;
-  // #computerPoints;
+  #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
+  #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
+  #humanScore = 0;
+  #ComputerScore = 0;
   #deckEl = document.getElementById("main_deck") as HTMLUListElement;
-  #deckTemplate = document.getElementById(
-    "template-deck-cardBack"
-  ) as HTMLTemplateElement;
+  #deckTemplate = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
   #deck = new Deck();
   // currentTurn: turn;
 
   constructor() {
     this.#deckInit();
+
+    // Init Points
+    this.#humanPointsEl.textContent = "0";
+    this.#computerPointsEl.textContent = "0";
   }
+
   #deckInit() {
     this.#deckEl.innerHTML = ""; // Clear inner html of deck
     for (let i = 0; i <= this.#deck.remaining; i++) {
       let clone = this.#deckTemplate.content.cloneNode(true);
       this.#deckEl.appendChild(clone);
     }
+  }
+
+  addPointComputer() {
+    this.#ComputerScore++;
+    this.#computerPointsEl.textContent = this.#ComputerScore.toString();
+  }
+
+  addPointHuman() {
+    this.#humanScore++;
+    this.#humanPointsEl.textContent = this.#humanScore.toString();
+  }
+
+  removeDeckTopCard() {
+    this.#deckEl.firstChild?.remove();
   }
 }
 

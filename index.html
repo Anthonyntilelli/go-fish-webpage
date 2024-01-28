@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>GoFish</title>
-    <meta
-      name="description"
-      content="A simple game of GoFish vs the computer."
-    />
+    <meta name="description" content="A simple game of GoFish vs the computer." />
     <meta name="author" content="Anthony Tilelli" />
     <link rel="stylesheet" href="./css/normalize.css" />
     <link rel="stylesheet" href="./css/cards.css" />
@@ -27,21 +24,23 @@
         <p>Computer Hand</p>
       </div>
       <div class="cPoints">
-        <p>0</p>
+        <h4 id="computer_points">NOT INITIALIZED</h4>
       </div>
       <div class="deck_grid">
         <div class="playingCards">
-          <ul class="deck" id="main_deck"></ul>
+          <ul class="deck" id="main_deck">
+            <li>DECK NOT INITIALIZED</li>
+          </ul>
         </div>
       </div>
       <div class="hPoints">
-        <p>0</p>
+        <h4 id="human_points">NOT INITIALIZED</h4>
       </div>
       <div class="status">
         <h4>Status and Turn</h4>
       </div>
       <div class="hLabel">
-        <h4>Human</h4>
+        <h4>You</h4>
       </div>
       <div class="humanHand">
         <p>Human Hand</p>
