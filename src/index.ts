@@ -48,6 +48,8 @@ type memory = {
 
 class Deck {
   #cards: card[];
+  #deckEl = document.getElementById("main_deck") as HTMLUListElement;
+  #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
 
   constructor() {
     this.#cards = [
@@ -105,6 +107,30 @@ class Deck {
       { Value: "K", Suit: suit.Spades },
     ];
     this.#shuffleDeck();
+    this.#deckDisplayInit();
+  }
+
+  get empty() {
+    return this.#cards.length === 0;
+  }
+
+  get remaining() {
+    return this.#cards.length;
+  }
+
+  // Throws an error on empty deck
+  draw(): card | never {
+    if (this.empty) throw Error("No more cards in the deck");
+    this.#deckEl.querySelector("li")?.remove();
+    return this.#cards.pop()!;
+  }
+
+  #deckDisplayInit() {
+    this.#deckEl.innerHTML = ""; // Clear inner html of deck
+    for (let i = 0; i < this.remaining; i++) {
+      const clone = this.#templateBackCard.content.cloneNode(true);
+      this.#deckEl.appendChild(clone);
+    }
   }
 
   #shuffleDeck() {
@@ -123,22 +149,6 @@ class Deck {
       this.#cards[length] = this.#cards[i];
       this.#cards[i] = t;
     }
-  }
-
-  get empty() {
-    return this.#cards.length === 0;
-  }
-
-  get remaining() {
-    return this.#cards.length;
-  }
-
-  // Throws an error on empty deck
-  draw(): card | never {
-    if (this.empty) {
-      throw Error("No more cards in the deck");
-    }
-    return this.#cards.pop()!;
   }
 }
 
@@ -177,6 +187,7 @@ class Player {
     if (this._hand[cardValue] === undefined || this._hand[cardValue].length === 0) return null;
     const cards = this._hand[cardValue];
     this._hand[cardValue] = []; // Removing cards from hand
+    this._length -= cards.length;
     return cards;
   }
 }
@@ -241,132 +252,162 @@ class ComputerPlayer extends Player {
   }
 }
 
-class Table {
-  #humanSideEl = document.getElementById("human_hand") as HTMLUListElement;
-  #computerSideEl = document.getElementById("computer_hand") as HTMLUListElement;
-  #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
-  #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
-  #humanScore = 0;
-  #ComputerScore = 0;
-  #deckEl = document.getElementById("main_deck") as HTMLUListElement;
-  #TemplateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
-  #deck = new Deck();
-  #computerPlayer: ComputerPlayer;
-  #humanPlayer: Player;
-  // currentTurn: turn;
+abstract class Side {
+  protected _sideEl: HTMLUListElement;
+  protected _player: Player;
+  #PointsEl: HTMLHeadingElement;
+  #score = 0;
 
-  constructor() {
-    this.#computerPlayer = new ComputerPlayer([
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-    ]);
-
-    this.#humanPlayer = new Player([
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-      this.#deck.draw(),
-    ]);
-
-    this.#computerSideDisplayInit();
-    this.#playerSideDisplayInit();
-    this.#deckDisplayInit(); // Init DeckDisplay last as the computerSideDisplay and playerSideDisplay take card off the deck
-
-    // Init Points
-    this.#humanPointsEl.textContent = "0";
-    this.#computerPointsEl.textContent = "0";
+  constructor(cards: card[], sideId: string, pointsId: string) {
+    this._player = new Player(cards);
+    this.#PointsEl = document.getElementById(pointsId) as HTMLHeadingElement;
+    this._sideEl = document.getElementById(sideId) as HTMLUListElement;
+    this.#PointsEl.textContent = "0";
   }
 
-  #deckDisplayInit() {
-    this.#deckEl.innerHTML = ""; // Clear inner html of deck
-    for (let i = 0; i <= this.#deck.remaining; i++) {
-      const clone = this.#TemplateBackCard.content.cloneNode(true);
-      this.#deckEl.appendChild(clone);
+  addPoint() {
+    this.#score++;
+    this.#PointsEl.textContent = this.#score.toString();
+  }
+
+  abstract displayHand(): void;
+
+  // Returns null if the player does not have the cards
+  abstract askForCards(cardValue: string): card[] | null;
+
+  abstract addCard(card: card): void;
+}
+
+class ComputerSide extends Side {
+  #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
+
+  constructor(cards: card[]) {
+    super(cards, "computer_hand", "computer_points");
+    this.displayHand();
+  }
+
+  displayHand(): void {
+    this._sideEl.innerHTML = "";
+
+    if (this._player.empty) {
+      this._sideEl.innerHTML = "Computer Player had No Cards";
+      return;
+    }
+
+    for (let i = 0; i < this._player.length; i++) {
+      const clone = this.#templateBackCard.content.cloneNode(true);
+      this._sideEl.appendChild(clone);
     }
   }
 
-  #computerSideDisplayInit() {
-    this.#computerSideEl.innerHTML = "";
-    for (let i = 0; i < this.#computerPlayer.length; i++) {
-      this.addComputerCard();
-    }
+  askForCards(cardValue: string) {
+    const cards = this._player.askForCards(cardValue);
+    this.displayHand();
+    return cards;
   }
 
-  #playerSideDisplayInit() {
-    this.#humanSideEl.innerHTML = "";
-    const cards = this.#humanPlayer.toCardArray();
-    for (let card of cards) {
-      this.addHumanCard(card);
-    }
-  }
-
-  addPointComputer() {
-    this.#ComputerScore++;
-    this.#computerPointsEl.textContent = this.#ComputerScore.toString();
-  }
-
-  addPointHuman() {
-    this.#humanScore++;
-    this.#humanPointsEl.textContent = this.#humanScore.toString();
-  }
-
-  removeDeckTopCard() {
-    this.#deckEl.firstChild?.remove();
-  }
-
-  removeComputerCard() {
-    this.#computerSideEl.firstChild?.remove();
-  }
-
-  addComputerCard() {
-    const clone = this.#TemplateBackCard.content.cloneNode(true);
-    this.#computerSideEl.appendChild(clone);
-  }
-  addHumanCard(card: card) {
-    let templateId = `template-${card.Value.toLowerCase()}-`;
-    let cardId = `${card.Value.toLowerCase()}-`;
-    switch (card.Suit) {
-      case suit.Clubs: {
-        templateId += "clubs";
-        cardId += "clubs";
-        break;
-      }
-      case suit.Diamonds: {
-        templateId += "diams";
-        cardId += "diams";
-        break;
-      }
-      case suit.Hearts: {
-        templateId += "hearts";
-        cardId += "hearts";
-        break;
-      }
-      case suit.Spades: {
-        templateId += "spades";
-        cardId += "spades";
-        break;
-      }
-    }
-    const templateCard = document.getElementById(templateId) as HTMLTemplateElement;
-    // console.log(templateId);
-    const clone = templateCard.content.cloneNode(true) as DocumentFragment;
-    const innerLi = clone.querySelector("li")!;
-    innerLi.id = cardId;
-    this.#humanSideEl.appendChild(clone);
-  }
-
-  // Removes all cards of that value
-  removeHumanCard(cardValue: string) {
-    const cvl = cardValue.toLowerCase();
-    document.getElementById(`${cvl}-spades`)?.remove();
-    document.getElementById(`${cvl}-hearts`)?.remove();
-    document.getElementById(`${cvl}-diams`)?.remove();
-    document.getElementById(`${cvl}-clubs`)?.remove();
+  addCard(card: card): void {
+    this._player.addCardToHand(card);
+    this.displayHand();
   }
 }
 
-let table = new Table();
+// class Table {
+//   #humanSideEl = document.getElementById("human_hand") as HTMLUListElement;
+
+//   #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
+//   #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
+//   #humanScore = 0;
+//   #ComputerScore = 0;
+
+//   #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
+//   #deck = new Deck();
+//   #computerPlayer: ComputerPlayer;
+//   #humanPlayer: Player;
+//   // currentTurn: turn;
+
+//   constructor() {
+//     this.#computerPlayer = new ComputerPlayer([
+//       this.#deck.draw(),
+//       this.#deck.draw(),
+//       this.#deck.draw(),
+//       this.#deck.draw(),
+//       this.#deck.draw(),
+//     ]);
+
+// this.#humanPlayer = new Player([
+//   this.#deck.draw(),
+//   this.#deck.draw(),
+//   this.#deck.draw(),
+//   this.#deck.draw(),
+//   this.#deck.draw(),
+// ]);
+
+// this.#computerSideDisplayInit();
+// this.#playerSideDisplayInit();
+// this.#deckDisplayInit(); // Init DeckDisplay last as the computerSideDisplay and playerSideDisplay take card off the deck
+
+// // Init Points
+// this.#humanPointsEl.textContent = "0";
+// this.#computerPointsEl.textContent = "0";
+//   }
+
+//   #playerSideDisplayInit() {
+//     this.#humanSideEl.innerHTML = "";
+//     const cards = this.#humanPlayer.toCardArray();
+//     for (let card of cards) {
+//       this.addHumanCard(card);
+//     }
+//   }
+
+//   removeComputerCard() {
+//     this.#computerSideEl.firstChild?.remove();
+//   }
+
+//   addHumanCard(card: card) {
+//     let templateId = `template-${card.Value.toLowerCase()}-`;
+//     let cardId = `${card.Value.toLowerCase()}-`;
+//     switch (card.Suit) {
+//       case suit.Clubs: {
+//         templateId += "clubs";
+//         cardId += "clubs";
+//         break;
+//       }
+//       case suit.Diamonds: {
+//         templateId += "diams";
+//         cardId += "diams";
+//         break;
+//       }
+//       case suit.Hearts: {
+//         templateId += "hearts";
+//         cardId += "hearts";
+//         break;
+//       }
+//       case suit.Spades: {
+//         templateId += "spades";
+//         cardId += "spades";
+//         break;
+//       }
+//     }
+//     const templateCard = document.getElementById(templateId) as HTMLTemplateElement;
+//     // console.log(templateId);
+//     const clone = templateCard.content.cloneNode(true) as DocumentFragment;
+//     const innerLi = clone.querySelector("li")!;
+//     innerLi.id = cardId;
+//     this.#humanSideEl.appendChild(clone);
+//   }
+
+//   // Removes all cards of that value
+//   removeHumanCard(cardValue: string) {
+//     const cvl = cardValue.toLowerCase();
+//     document.getElementById(`${cvl}-spades`)?.remove();
+//     document.getElementById(`${cvl}-hearts`)?.remove();
+//     document.getElementById(`${cvl}-diams`)?.remove();
+//     document.getElementById(`${cvl}-clubs`)?.remove();
+//   }
+// }
+
+// let table = new Table();
+
+let d = new Deck();
+let cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
