@@ -55,6 +55,8 @@ body {
 
 .humanHand {
   grid-area: humanHand;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .footer {

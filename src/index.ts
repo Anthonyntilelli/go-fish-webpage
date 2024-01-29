@@ -242,7 +242,7 @@ class ComputerPlayer extends Player {
 }
 
 class Table {
-  // #humanSide;
+  #humanSideEl = document.getElementById("human_hand") as HTMLUListElement;
   #computerSideEl = document.getElementById("computer_hand") as HTMLUListElement;
   #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
   #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
@@ -272,8 +272,9 @@ class Table {
       this.#deck.draw(),
     ]);
 
-    this.#deckDisplayInit();
     this.#computerSideDisplayInit();
+    this.#playerSideDisplayInit();
+    this.#deckDisplayInit(); // Init DeckDisplay last as the computerSideDisplay and playerSideDisplay take card off the deck
 
     // Init Points
     this.#humanPointsEl.textContent = "0";
@@ -289,11 +290,17 @@ class Table {
   }
 
   #computerSideDisplayInit() {
-    this.#computerSideEl.innerHTML = ""; //CLear Inner html of deck
-    this.#computerPlayer.length;
-    for (let i = 0; i <= this.#computerPlayer.length; i++) {
-      const clone = this.#TemplateBackCard.content.cloneNode(true);
-      this.#computerSideEl.appendChild(clone);
+    this.#computerSideEl.innerHTML = "";
+    for (let i = 0; i < this.#computerPlayer.length; i++) {
+      this.addComputerCard();
+    }
+  }
+
+  #playerSideDisplayInit() {
+    this.#humanSideEl.innerHTML = "";
+    const cards = this.#humanPlayer.toCardArray();
+    for (let card of cards) {
+      this.addHumanCard(card);
     }
   }
 
@@ -313,6 +320,52 @@ class Table {
 
   removeComputerCard() {
     this.#computerSideEl.firstChild?.remove();
+  }
+
+  addComputerCard() {
+    const clone = this.#TemplateBackCard.content.cloneNode(true);
+    this.#computerSideEl.appendChild(clone);
+  }
+  addHumanCard(card: card) {
+    let templateId = `template-${card.Value.toLowerCase()}-`;
+    let cardId = `${card.Value.toLowerCase()}-`;
+    switch (card.Suit) {
+      case suit.Clubs: {
+        templateId += "clubs";
+        cardId += "clubs";
+        break;
+      }
+      case suit.Diamonds: {
+        templateId += "diams";
+        cardId += "diams";
+        break;
+      }
+      case suit.Hearts: {
+        templateId += "hearts";
+        cardId += "hearts";
+        break;
+      }
+      case suit.Spades: {
+        templateId += "spades";
+        cardId += "spades";
+        break;
+      }
+    }
+    const templateCard = document.getElementById(templateId) as HTMLTemplateElement;
+    // console.log(templateId);
+    const clone = templateCard.content.cloneNode(true) as DocumentFragment;
+    const innerLi = clone.querySelector("li")!;
+    innerLi.id = cardId;
+    this.#humanSideEl.appendChild(clone);
+  }
+
+  // Removes all cards of that value
+  removeHumanCard(cardValue: string) {
+    const cvl = cardValue.toLowerCase();
+    document.getElementById(`${cvl}-spades`)?.remove();
+    document.getElementById(`${cvl}-hearts`)?.remove();
+    document.getElementById(`${cvl}-diams`)?.remove();
+    document.getElementById(`${cvl}-clubs`)?.remove();
   }
 }
 
