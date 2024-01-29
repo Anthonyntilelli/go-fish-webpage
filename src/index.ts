@@ -243,29 +243,57 @@ class ComputerPlayer extends Player {
 
 class Table {
   // #humanSide;
-  // #computerSide;
+  #computerSideEl = document.getElementById("computer_hand") as HTMLUListElement;
   #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
   #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
   #humanScore = 0;
   #ComputerScore = 0;
   #deckEl = document.getElementById("main_deck") as HTMLUListElement;
-  #deckTemplate = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
+  #TemplateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
   #deck = new Deck();
+  #computerPlayer: ComputerPlayer;
+  #humanPlayer: Player;
   // currentTurn: turn;
 
   constructor() {
-    this.#deckInit();
+    this.#computerPlayer = new ComputerPlayer([
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+    ]);
+
+    this.#humanPlayer = new Player([
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+      this.#deck.draw(),
+    ]);
+
+    this.#deckDisplayInit();
+    this.#computerSideDisplayInit();
 
     // Init Points
     this.#humanPointsEl.textContent = "0";
     this.#computerPointsEl.textContent = "0";
   }
 
-  #deckInit() {
+  #deckDisplayInit() {
     this.#deckEl.innerHTML = ""; // Clear inner html of deck
     for (let i = 0; i <= this.#deck.remaining; i++) {
-      let clone = this.#deckTemplate.content.cloneNode(true);
+      const clone = this.#TemplateBackCard.content.cloneNode(true);
       this.#deckEl.appendChild(clone);
+    }
+  }
+
+  #computerSideDisplayInit() {
+    this.#computerSideEl.innerHTML = ""; //CLear Inner html of deck
+    this.#computerPlayer.length;
+    for (let i = 0; i <= this.#computerPlayer.length; i++) {
+      const clone = this.#TemplateBackCard.content.cloneNode(true);
+      this.#computerSideEl.appendChild(clone);
     }
   }
 
@@ -281,6 +309,10 @@ class Table {
 
   removeDeckTopCard() {
     this.#deckEl.firstChild?.remove();
+  }
+
+  removeComputerCard() {
+    this.#computerSideEl.firstChild?.remove();
   }
 }
 
