@@ -283,6 +283,7 @@ class ComputerSide extends Side {
 
   constructor(cards: card[]) {
     super(cards, "computer_hand", "computer_points");
+    this._player = new Player(cards);
     this.displayHand();
   }
 
@@ -312,102 +313,70 @@ class ComputerSide extends Side {
   }
 }
 
-// class Table {
-//   #humanSideEl = document.getElementById("human_hand") as HTMLUListElement;
+class HumanSide extends Side {
+  constructor(cards: card[]) {
+    super(cards, "human_hand", "human_points");
+    this.displayHand();
+  }
 
-//   #humanPointsEl = document.getElementById("human_points") as HTMLHeadingElement;
-//   #computerPointsEl = document.getElementById("computer_points") as HTMLHeadingElement;
-//   #humanScore = 0;
-//   #ComputerScore = 0;
+  displayHand(): void {
+    this._sideEl.innerHTML = "";
 
-//   #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
-//   #deck = new Deck();
-//   #computerPlayer: ComputerPlayer;
-//   #humanPlayer: Player;
-//   // currentTurn: turn;
+    if (this._player.empty) {
+      this._sideEl.innerHTML = "Computer Player had No Cards";
+      return;
+    }
 
-//   constructor() {
-//     this.#computerPlayer = new ComputerPlayer([
-//       this.#deck.draw(),
-//       this.#deck.draw(),
-//       this.#deck.draw(),
-//       this.#deck.draw(),
-//       this.#deck.draw(),
-//     ]);
+    const cards = this._player.toCardArray();
+    for (let card of cards) {
+      this.#createDisplayCard(card);
+    }
+  }
 
-// this.#humanPlayer = new Player([
-//   this.#deck.draw(),
-//   this.#deck.draw(),
-//   this.#deck.draw(),
-//   this.#deck.draw(),
-//   this.#deck.draw(),
-// ]);
+  askForCards(cardValue: string) {
+    const cards = this._player.askForCards(cardValue);
+    this.displayHand();
+    return cards;
+  }
 
-// this.#computerSideDisplayInit();
-// this.#playerSideDisplayInit();
-// this.#deckDisplayInit(); // Init DeckDisplay last as the computerSideDisplay and playerSideDisplay take card off the deck
+  addCard(card: card): void {
+    this._player.addCardToHand(card);
+    this.displayHand();
+  }
 
-// // Init Points
-// this.#humanPointsEl.textContent = "0";
-// this.#computerPointsEl.textContent = "0";
-//   }
-
-//   #playerSideDisplayInit() {
-//     this.#humanSideEl.innerHTML = "";
-//     const cards = this.#humanPlayer.toCardArray();
-//     for (let card of cards) {
-//       this.addHumanCard(card);
-//     }
-//   }
-
-//   removeComputerCard() {
-//     this.#computerSideEl.firstChild?.remove();
-//   }
-
-//   addHumanCard(card: card) {
-//     let templateId = `template-${card.Value.toLowerCase()}-`;
-//     let cardId = `${card.Value.toLowerCase()}-`;
-//     switch (card.Suit) {
-//       case suit.Clubs: {
-//         templateId += "clubs";
-//         cardId += "clubs";
-//         break;
-//       }
-//       case suit.Diamonds: {
-//         templateId += "diams";
-//         cardId += "diams";
-//         break;
-//       }
-//       case suit.Hearts: {
-//         templateId += "hearts";
-//         cardId += "hearts";
-//         break;
-//       }
-//       case suit.Spades: {
-//         templateId += "spades";
-//         cardId += "spades";
-//         break;
-//       }
-//     }
-//     const templateCard = document.getElementById(templateId) as HTMLTemplateElement;
-//     // console.log(templateId);
-//     const clone = templateCard.content.cloneNode(true) as DocumentFragment;
-//     const innerLi = clone.querySelector("li")!;
-//     innerLi.id = cardId;
-//     this.#humanSideEl.appendChild(clone);
-//   }
-
-//   // Removes all cards of that value
-//   removeHumanCard(cardValue: string) {
-//     const cvl = cardValue.toLowerCase();
-//     document.getElementById(`${cvl}-spades`)?.remove();
-//     document.getElementById(`${cvl}-hearts`)?.remove();
-//     document.getElementById(`${cvl}-diams`)?.remove();
-//     document.getElementById(`${cvl}-clubs`)?.remove();
-//   }
-// }
-
-// let table = new Table();
+  #createDisplayCard(card: card) {
+    let templateId = `template-${card.Value.toLowerCase()}-`;
+    let cardId = `${card.Value.toLowerCase()}-`;
+    switch (card.Suit) {
+      case suit.Clubs: {
+        templateId += "clubs";
+        cardId += "clubs";
+        break;
+      }
+      case suit.Diamonds: {
+        templateId += "diams";
+        cardId += "diams";
+        break;
+      }
+      case suit.Hearts: {
+        templateId += "hearts";
+        cardId += "hearts";
+        break;
+      }
+      case suit.Spades: {
+        templateId += "spades";
+        cardId += "spades";
+        break;
+      }
+    }
+    const templateCard = document.getElementById(templateId) as HTMLTemplateElement;
+    const clone = templateCard.content.cloneNode(true) as DocumentFragment;
+    const innerLi = clone.querySelector("li")!;
+    innerLi.id = cardId;
+    this._sideEl.appendChild(clone);
+  }
+}
 
 let d = new Deck();
 let cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
+let hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
