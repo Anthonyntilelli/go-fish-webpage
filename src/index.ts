@@ -190,6 +190,19 @@ class Player {
     this._length -= cards.length;
     return cards;
   }
+
+  //Finds quad Cards and removes them from hand
+  //returns number of quads if finds
+  removeQuadsCards() {
+    let quadsFound = 0;
+    for (let value of Object.keys(this._hand)) {
+      if (this._hand[value].length == 4) {
+        quadsFound++;
+        this._hand[value] = [];
+      }
+    }
+    return quadsFound;
+  }
 }
 
 class ComputerPlayer extends Player {
@@ -263,8 +276,8 @@ abstract class Side {
     this.#PointsEl.textContent = "0";
   }
 
-  addPoint() {
-    this.#score++;
+  addPoint(points: number) {
+    this.#score += points;
     this.#PointsEl.textContent = this.#score.toString();
   }
 
@@ -274,6 +287,8 @@ abstract class Side {
   abstract askForCards(cardValue: string): card[] | null;
 
   abstract addCard(card: card): void;
+
+  abstract checkAndRemoveQuads(): void;
 }
 
 class ComputerSide extends Side {
@@ -312,6 +327,12 @@ class ComputerSide extends Side {
   }
   guess() {
     this.#player.guess();
+  }
+
+  checkAndRemoveQuads() {
+    const points = this.#player.removeQuadsCards();
+    this.addPoint(points);
+    this.displayHand();
   }
 }
 
@@ -379,6 +400,12 @@ class HumanSide extends Side {
     const innerLi = clone.querySelector("li")!;
     innerLi.id = cardId;
     this._sideEl.appendChild(clone);
+  }
+
+  checkAndRemoveQuads() {
+    const points = this.#player.removeQuadsCards();
+    this.addPoint(points);
+    this.displayHand();
   }
 }
 
