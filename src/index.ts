@@ -254,12 +254,10 @@ class ComputerPlayer extends Player {
 
 abstract class Side {
   protected _sideEl: HTMLUListElement;
-  protected _player: Player;
   #PointsEl: HTMLHeadingElement;
   #score = 0;
 
-  constructor(cards: card[], sideId: string, pointsId: string) {
-    this._player = new Player(cards);
+  constructor(sideId: string, pointsId: string) {
     this.#PointsEl = document.getElementById(pointsId) as HTMLHeadingElement;
     this._sideEl = document.getElementById(sideId) as HTMLUListElement;
     this.#PointsEl.textContent = "0";
@@ -280,71 +278,78 @@ abstract class Side {
 
 class ComputerSide extends Side {
   #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
+  #player: ComputerPlayer;
 
   constructor(cards: card[]) {
-    super(cards, "computer_hand", "computer_points");
-    this._player = new Player(cards);
+    super("computer_hand", "computer_points");
+    this.#player = new ComputerPlayer(cards);
     this.displayHand();
   }
 
   displayHand(): void {
     this._sideEl.innerHTML = "";
 
-    if (this._player.empty) {
+    if (this.#player.empty) {
       this._sideEl.innerHTML = "Computer Player had No Cards";
       return;
     }
 
-    for (let i = 0; i < this._player.length; i++) {
+    for (let i = 0; i < this.#player.length; i++) {
       const clone = this.#templateBackCard.content.cloneNode(true);
       this._sideEl.appendChild(clone);
     }
   }
 
   askForCards(cardValue: string) {
-    const cards = this._player.askForCards(cardValue);
+    const cards = this.#player.askForCards(cardValue);
     this.displayHand();
     return cards;
   }
 
   addCard(card: card): void {
-    this._player.addCardToHand(card);
+    this.#player.addCardToHand(card);
     this.displayHand();
+  }
+  guess() {
+    this.#player.guess();
   }
 }
 
 class HumanSide extends Side {
+  #player: Player;
+
   constructor(cards: card[]) {
-    super(cards, "human_hand", "human_points");
+    super("human_hand", "human_points");
+    this.#player = new Player(cards);
     this.displayHand();
   }
 
   displayHand(): void {
     this._sideEl.innerHTML = "";
 
-    if (this._player.empty) {
+    if (this.#player.empty) {
       this._sideEl.innerHTML = "Computer Player had No Cards";
       return;
     }
 
-    const cards = this._player.toCardArray();
+    const cards = this.#player.toCardArray();
     for (let card of cards) {
-      this.#createDisplayCard(card);
+      this.#createDisplayCards(card);
     }
   }
 
   askForCards(cardValue: string) {
-    const cards = this._player.askForCards(cardValue);
+    const cards = this.#player.askForCards(cardValue);
     this.displayHand();
     return cards;
   }
 
   addCard(card: card): void {
-    this._player.addCardToHand(card);
+    this.#player.addCardToHand(card);
     this.displayHand();
   }
 
-  #createDisplayCard(card: card) {
+  #createDisplayCards(card: card) {
     let templateId = `template-${card.Value.toLowerCase()}-`;
     let cardId = `${card.Value.toLowerCase()}-`;
     switch (card.Suit) {
@@ -377,6 +382,6 @@ class HumanSide extends Side {
   }
 }
 
-let d = new Deck();
-let cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
-let hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
+const d = new Deck();
+const cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
+const hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
