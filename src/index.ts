@@ -5,9 +5,10 @@ enum suit {
   Spades = "♠",
 }
 
-enum turn {
-  human,
-  computer,
+enum state {
+  humanTurn,
+  computerTurn,
+  goFish,
 }
 
 type card = { Value: string; Suit: suit };
@@ -334,6 +335,10 @@ class ComputerSide extends Side {
     this.addPoint(points);
     this.displayHand();
   }
+  cheat() {
+    // REMOVE ME
+    return this.#player.toCardArray();
+  }
 }
 
 class HumanSide extends Side {
@@ -412,3 +417,35 @@ class HumanSide extends Side {
 const d = new Deck();
 const cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
 const hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
+const statusText = document.getElementById("status_text") as HTMLHeadingElement;
+
+statusText.textContent = "Select a card to start the game.";
+
+let currentState = state.humanTurn;
+
+let clicked;
+document.getElementById("human_hand")?.addEventListener("click", function (event) {
+  const cardEl = (event.target as HTMLElement)?.closest("li");
+
+  if (cardEl === null || currentState !== state.humanTurn) return; // skip if could not find card
+
+  const [cardValue, _] = cardEl.id.split("-");
+  const cards = cp.askForCards(cardValue.toUpperCase());
+  if (cards === null) {
+    statusText.textContent = "No luck, You will need to go fish (click on the deck)";
+    currentState = state.goFish;
+  } else {
+    statusText.textContent = "You guessed correctly! Go again.";
+    for (let card of cards) hp.addCard(card);
+    hp.checkAndRemoveQuads();
+  }
+});
+
+document.getElementById("main_deck")?.addEventListener("click", function (event) {
+  if (currentState !== state.goFish) return; // only draw on go fish.
+  const card = d.draw();
+  hp.addCard(card);
+  hp.checkAndRemoveQuads();
+  currentState = state.humanTurn;
+  statusText.textContent = "Your Turn";
+});
