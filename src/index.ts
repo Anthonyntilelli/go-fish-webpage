@@ -183,6 +183,16 @@ class Player {
     return Object.values(this._hand).flat();
   }
 
+  cheat() {
+    const cards = this.toCardArray();
+    let strArray: string[] = [];
+
+    for (const card of cards) {
+      strArray.push(`${card.Value}${card.Suit}`);
+    }
+    return strArray.join(" ");
+  }
+
   // return null if player does not have the card
   askForCards(cardValue: string): card[] | null {
     if (this._hand[cardValue] === undefined || this._hand[cardValue].length === 0) return null;
@@ -434,9 +444,25 @@ document.getElementById("human_hand")?.addEventListener("click", function (event
 
 document.getElementById("main_deck")?.addEventListener("click", function (event) {
   if (currentState !== state.goFish) return; // only draw on go fish.
-  const card = d.draw();
-  hp.addCard(card);
+  hp.addCard(d.draw()); //hp goFish
   hp.checkAndRemoveQuads();
+
+  currentState = state.computerTurn;
+  if (cp.player.empty) {
+    statusText.textContent = "Computer hand is empty, it must GoFish. Your turn.";
+  } else {
+    const cardsAsked: string[] = [];
+    let cards = null;
+    do {
+      const cardValue = cp.player.guess();
+      cardsAsked.push(cardValue);
+      cards = hp.askForCards(cardValue);
+      if (cards) for (const card of cards) cp.addCard(card);
+    } while (cards);
+    statusText.textContent = `Computer asked for ${cardsAsked.join(", ")}, Your Turn`;
+  }
+  cp.addCard(d.draw()); // CP goFish
+  cp.checkAndRemoveQuads();
+  // console.log(cp.player.cheat());
   currentState = state.humanTurn;
-  statusText.textContent = "Your Turn";
 });
