@@ -294,84 +294,77 @@ abstract class Side {
 
 class ComputerSide extends Side {
   #templateBackCard = document.getElementById("template-deck-cardBack") as HTMLTemplateElement;
-  #player: ComputerPlayer;
+  player: ComputerPlayer;
 
   constructor(cards: card[]) {
     super("computer_hand", "computer_points");
-    this.#player = new ComputerPlayer(cards);
+    this.player = new ComputerPlayer(cards);
     this.displayHand();
   }
 
   displayHand(): void {
     this._sideEl.innerHTML = "";
 
-    if (this.#player.empty) {
+    if (this.player.empty) {
       this._sideEl.innerHTML = "Computer Player had No Cards";
       return;
     }
 
-    for (let i = 0; i < this.#player.length; i++) {
+    for (let i = 0; i < this.player.length; i++) {
       const clone = this.#templateBackCard.content.cloneNode(true);
       this._sideEl.appendChild(clone);
     }
   }
 
   askForCards(cardValue: string) {
-    const cards = this.#player.askForCards(cardValue);
+    const cards = this.player.askForCards(cardValue);
     this.displayHand();
     return cards;
   }
 
   addCard(card: card): void {
-    this.#player.addCardToHand(card);
+    this.player.addCardToHand(card);
     this.displayHand();
-  }
-  guess() {
-    this.#player.guess();
   }
 
   checkAndRemoveQuads() {
-    const points = this.#player.removeQuadsCards();
+    const points = this.player.removeQuadsCards();
     this.addPoint(points);
     this.displayHand();
-  }
-  cheat() {
-    // REMOVE ME
-    return this.#player.toCardArray();
   }
 }
 
 class HumanSide extends Side {
-  #player: Player;
+  player: Player;
 
   constructor(cards: card[]) {
     super("human_hand", "human_points");
-    this.#player = new Player(cards);
+    this.player = new Player(cards);
     this.displayHand();
   }
 
   displayHand(): void {
     this._sideEl.innerHTML = "";
 
-    if (this.#player.empty) {
+    if (this.player.empty) {
       this._sideEl.innerHTML = "Computer Player had No Cards";
       return;
     }
 
-    const cards = this.#player.toCardArray();
+    const cards = this.player.toCardArray();
     for (let card of cards) {
       this.#createDisplayCards(card);
     }
   }
 
   askForCards(cardValue: string) {
-    const cards = this.#player.askForCards(cardValue);
+    const cards = this.player.askForCards(cardValue);
     this.displayHand();
     return cards;
   }
 
   addCard(card: card): void {
-    this.#player.addCardToHand(card);
+    this.player.addCardToHand(card);
     this.displayHand();
   }
 
@@ -408,7 +401,7 @@ class HumanSide extends Side {
   }
 
   checkAndRemoveQuads() {
-    const points = this.#player.removeQuadsCards();
+    const points = this.player.removeQuadsCards();
     this.addPoint(points);
     this.displayHand();
   }
@@ -423,7 +416,6 @@ statusText.textContent = "Select a card to start the game.";
 
 let currentState = state.humanTurn;
 
-let clicked;
 document.getElementById("human_hand")?.addEventListener("click", function (event) {
   const cardEl = (event.target as HTMLElement)?.closest("li");
 
