@@ -368,6 +368,12 @@ class HumanSide extends Side {
     this.displayHand();
   }
 
+  checkAndRemoveQuads() {
+    const points = this.player.removeQuadsCards();
+    this.addPoint(points);
+    this.displayHand();
+  }
+
   #createDisplayCards(card: card) {
     let templateId = `template-${card.Value.toLowerCase()}-`;
     let cardId = `${card.Value.toLowerCase()}-`;
@@ -399,12 +405,6 @@ class HumanSide extends Side {
     innerLi.id = cardId;
     this._sideEl.appendChild(clone);
   }
-
-  checkAndRemoveQuads() {
-    const points = this.player.removeQuadsCards();
-    this.addPoint(points);
-    this.displayHand();
-  }
 }
 
 const d = new Deck();
@@ -412,9 +412,8 @@ const cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
 const hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
 const statusText = document.getElementById("status_text") as HTMLHeadingElement;
 
-statusText.textContent = "Select a card to start the game.";
-
 let currentState = state.humanTurn;
+statusText.textContent = "Select a card to start the game.";
 
 document.getElementById("human_hand")?.addEventListener("click", function (event) {
   const cardEl = (event.target as HTMLElement)?.closest("li");
