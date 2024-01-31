@@ -9,6 +9,7 @@ enum state {
   humanTurn,
   computerTurn,
   goFish,
+  gameOver,
 }
 
 type card = { Value: string; Suit: suit };
@@ -183,16 +184,6 @@ class Player {
     return Object.values(this._hand).flat();
   }
 
-  cheat() {
-    const cards = this.toCardArray();
-    let strArray: string[] = [];
-
-    for (const card of cards) {
-      strArray.push(`${card.Value}${card.Suit}`);
-    }
-    return strArray.join(" ");
-  }
-
   // return null if player does not have the card
   askForCards(cardValue: string): card[] | null {
     if (this._hand[cardValue] === undefined || this._hand[cardValue].length === 0) return null;
@@ -202,17 +193,18 @@ class Player {
     return cards;
   }
 
-  //Finds quad Cards and removes them from hand
+  //Finds 4pair Cards and removes them from hand
   //returns number of quads if finds
-  removeQuadsCards() {
-    let quadsFound = 0;
+  removeFourPair() {
+    let fourPairFound = 0;
     for (let value of Object.keys(this._hand)) {
       if (this._hand[value].length == 4) {
-        quadsFound++;
+        fourPairFound++;
         this._hand[value] = [];
       }
     }
-    return quadsFound;
+    this._length -= 4 * fourPairFound;
+    return fourPairFound;
   }
 }
 
@@ -292,6 +284,10 @@ abstract class Side {
     this.#PointsEl.textContent = this.#score.toString();
   }
 
+  get score() {
+    return this.#score;
+  }
+
   abstract displayHand(): void;
 
   // Returns null if the player does not have the cards
@@ -299,7 +295,7 @@ abstract class Side {
 
   abstract addCard(card: card): void;
 
-  abstract checkAndRemoveQuads(): void;
+  abstract checkAndRemoveFourPair(): void;
 }
 
 class ComputerSide extends Side {
@@ -316,7 +312,7 @@ class ComputerSide extends Side {
     this._sideEl.innerHTML = "";
 
     if (this.player.empty) {
-      this._sideEl.innerHTML = "Computer Player had No Cards";
+      this._sideEl.innerHTML = "Computer player has no cards";
       return;
     }
 
@@ -337,8 +333,8 @@ class ComputerSide extends Side {
     this.displayHand();
   }
 
-  checkAndRemoveQuads() {
-    const points = this.player.removeQuadsCards();
+  checkAndRemoveFourPair() {
+    const points = this.player.removeFourPair();
     this.addPoint(points);
     this.displayHand();
   }
@@ -357,7 +353,7 @@ class HumanSide extends Side {
     this._sideEl.innerHTML = "";
 
     if (this.player.empty) {
-      this._sideEl.innerHTML = "Computer Player had No Cards";
+      this._sideEl.innerHTML = "You have no cards";
       return;
     }
 
@@ -378,8 +374,8 @@ class HumanSide extends Side {
     this.displayHand();
   }
 
-  checkAndRemoveQuads() {
-    const points = this.player.removeQuadsCards();
+  checkAndRemoveFourPair() {
+    const points = this.player.removeFourPair();
     this.addPoint(points);
     this.displayHand();
   }
@@ -417,52 +413,108 @@ class HumanSide extends Side {
   }
 }
 
-const d = new Deck();
-const cp = new ComputerSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
-const hp = new HumanSide([d.draw(), d.draw(), d.draw(), d.draw(), d.draw()]);
-const statusText = document.getElementById("status_text") as HTMLHeadingElement;
+class App {
+  deck: Deck;
+  computer: ComputerSide;
+  human: HumanSide;
+  statusText = document.getElementById("status_text") as HTMLHeadingElement;
+  currentState: state;
 
-let currentState = state.humanTurn;
-statusText.textContent = "Select a card to start the game.";
-
-document.getElementById("human_hand")?.addEventListener("click", function (event) {
-  const cardEl = (event.target as HTMLElement)?.closest("li");
-
-  if (cardEl === null || currentState !== state.humanTurn) return; // skip if could not find card
-
-  const [cardValue, _] = cardEl.id.split("-");
-  const cards = cp.askForCards(cardValue.toUpperCase());
-  if (cards === null) {
-    statusText.textContent = "No luck, You will need to go fish (click on the deck)";
-    currentState = state.goFish;
-  } else {
-    statusText.textContent = "You guessed correctly! Go again.";
-    for (let card of cards) hp.addCard(card);
-    hp.checkAndRemoveQuads();
+  constructor() {
+    this.deck = new Deck();
+    this.computer = new ComputerSide([
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+    ]);
+    this.human = new HumanSide([
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+    ]);
+    this.currentState = state.humanTurn;
+    this.statusText.textContent = "Select a card to start the game.";
+    document.getElementById("human_hand")?.addEventListener("click", this.#playerGuessEvent.bind(this));
+    document.getElementById("main_deck")?.addEventListener("click", this.#playerGoFishAndComputerTurn.bind(this));
   }
-});
-
-document.getElementById("main_deck")?.addEventListener("click", function (event) {
-  if (currentState !== state.goFish) return; // only draw on go fish.
-  hp.addCard(d.draw()); //hp goFish
-  hp.checkAndRemoveQuads();
-
-  currentState = state.computerTurn;
-  if (cp.player.empty) {
-    statusText.textContent = "Computer hand is empty, it must GoFish. Your turn.";
-  } else {
-    const cardsAsked: string[] = [];
-    let cards = null;
-    do {
-      const cardValue = cp.player.guess();
-      cardsAsked.push(cardValue);
-      cards = hp.askForCards(cardValue);
-      if (cards) for (const card of cards) cp.addCard(card);
-    } while (cards);
-    statusText.textContent = `Computer asked for ${cardsAsked.join(", ")}, Your Turn`;
+  newGame() {
+    this.deck = new Deck();
+    this.computer = new ComputerSide([
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+    ]);
+    this.human = new HumanSide([
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+      this.deck.draw(),
+    ]);
+    this.currentState = state.humanTurn;
+    this.statusText.textContent = "Select a card to start the game.";
   }
-  cp.addCard(d.draw()); // CP goFish
-  cp.checkAndRemoveQuads();
-  // console.log(cp.player.cheat());
-  currentState = state.humanTurn;
-});
+
+  #checkGameOver() {
+    if (this.deck.empty && (this.computer.player.empty || this.human.player.empty)) {
+      this.currentState = state.gameOver;
+      if (this.computer.score > this.human.score) this.statusText.textContent = "GameOver Computer won :-(";
+      else if (this.human.score > this.computer.score) this.statusText.textContent = "GameOver You won :-)";
+      else this.statusText.textContent = "GameOver Its a Tie";
+    }
+  }
+
+  #playerGuessEvent(event: Event) {
+    const cardEl = (event.target as HTMLElement)?.closest("li");
+    if (cardEl === null || this.currentState !== state.humanTurn) return; // skip if could not find card
+
+    const [cardValue, _] = cardEl.id.split("-");
+    const cards = this.computer.askForCards(cardValue.toUpperCase());
+
+    if (cards === null) {
+      this.statusText.textContent = "No luck, You will need to go fish (click on the deck)";
+      this.currentState = state.goFish;
+    } else {
+      for (let card of cards) this.human.addCard(card);
+      this.human.checkAndRemoveFourPair();
+      this.statusText.textContent = "You guessed correctly! Go again.";
+      this.#checkGameOver();
+    }
+  }
+
+  #playerGoFishAndComputerTurn(_: Event) {
+    if (this.currentState !== state.goFish) return; // only draw on go fish.
+    this.human.addCard(this.deck.draw()); //human  goFish
+    this.human.checkAndRemoveFourPair();
+    this.#computerTurn();
+    this.currentState = state.humanTurn;
+    this.#checkGameOver();
+  }
+
+  #computerTurn() {
+    this.currentState = state.computerTurn;
+    if (this.computer.player.empty) {
+      this.statusText.textContent = "Computer hand is empty, it must GoFish. Your turn.";
+    } else {
+      const cardsAsked: string[] = [];
+      let cards = null;
+      do {
+        const cardValue = this.computer.player.guess();
+        cardsAsked.push(cardValue);
+        cards = this.human.askForCards(cardValue);
+        if (cards) for (const card of cards) this.computer.addCard(card);
+      } while (cards);
+      this.statusText.textContent = `Computer asked for ${cardsAsked.join(", ")}, Your Turn`;
+    }
+    if (!this.deck.empty) this.computer.addCard(this.deck.draw()); // CP goFish
+    this.computer.checkAndRemoveFourPair();
+  }
+}
+
+const app = new App();
