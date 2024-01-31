@@ -5,7 +5,7 @@
   "main": "./dist/bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "live-server",
+    "start": "tsc && live-server",
     "watch": "tsc --watch"
   },
   "repository": {
