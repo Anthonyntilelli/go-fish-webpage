@@ -440,8 +440,10 @@ class App {
     this.statusText.textContent = "Select a card to start the game.";
     document.getElementById("human_hand")?.addEventListener("click", this.#playerGuessEvent.bind(this));
     document.getElementById("main_deck")?.addEventListener("click", this.#playerGoFishAndComputerTurn.bind(this));
+    this.statusText.addEventListener("click", this.newGame.bind(this));
   }
-  newGame() {
+  newGame(_: Event) {
+    if (this.currentState !== state.gameOver) return;
     this.deck = new Deck();
     this.computer = new ComputerSide([
       this.deck.draw(),
@@ -464,9 +466,11 @@ class App {
   #checkGameOver() {
     if (this.deck.empty && (this.computer.player.empty || this.human.player.empty)) {
       this.currentState = state.gameOver;
-      if (this.computer.score > this.human.score) this.statusText.textContent = "GameOver Computer won :-(";
-      else if (this.human.score > this.computer.score) this.statusText.textContent = "GameOver You won :-)";
-      else this.statusText.textContent = "GameOver Its a Tie";
+      if (this.computer.score > this.human.score)
+        this.statusText.textContent = "GameOver Computer won :-(, Click here to restart the game.";
+      else if (this.human.score > this.computer.score)
+        this.statusText.textContent = "GameOver You won :-), Click here to restart the game.";
+      else this.statusText.textContent = "GameOver Its a Tie, Click here to restart the game.";
     }
   }
 
