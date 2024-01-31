@@ -4,7 +4,8 @@ GO fish web page written in TypeScript
 
 ## Usage
 
-Run `npm start` to compile and run the game.
+1. Run `npm install` to install dependencies.
+2. Run `npm start` to compile and run the game.
 
 ## Credit
 
