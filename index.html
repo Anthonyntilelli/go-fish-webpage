@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>GoFish</title>
+    <meta name="description" content="A simple game of GoFish vs the computer." />
+    <meta name="author" content="Anthony Tilelli" />
+    <link rel="stylesheet" href="./css/normalize.css" />
+    <link rel="stylesheet" href="./css/cards.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script defer type="module" src="./dist/index.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <h1>GoFish</h1>
+    </header>
+    <main class="grid background">
+      <div class="cLabel">
+        <h4>Computer</h4>
+      </div>
+      <div class="computerHand">
+        <div class="playingCards">
+          <ul class="table" id="computer_hand">
+            <li>COMPUTER TABLE NOT INITIALIZED</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cPoints">
+        <h4 id="computer_points">NOT INITIALIZED</h4>
+      </div>
+      <div class="deck_grid">
+        <div class="playingCards">
+          <ul class="deck" id="main_deck">
+            <li>DECK NOT INITIALIZED</li>
+          </ul>
+        </div>
+      </div>
+      <div class="hPoints">
+        <h4 id="human_points">NOT INITIALIZED</h4>
+      </div>
+      <div class="status">
+        <h4 id="status_text">Status Not INITIALIZED</h4>
+      </div>
+      <div class="hLabel">
+        <h4>You</h4>
+      </div>
+      <div class="humanHand">
+        <div class="playingCards">
+          <ul class="table" id="human_hand">
+            <li>Human TABLE NOT INITIALIZED</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+    <footer class="footer">
+      <h2>By Anthony Tilelli</h2>
+    </footer>
+
+    <template id="template-deck-cardBack">
+      <li>
+        <div class="card back">*</div>
+      </li>
+    </template>
+    <template id="template-2-diams">
+      <li>
+        <a class="card rank-2 diams"><span class="rank">2</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-3-diams">
+      <li>
+        <a class="card rank-3 diams"><span class="rank">3</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-4-diams">
+      <li>
+        <a class="card rank-4 diams"><span class="rank">4</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-5-diams">
+      <li>
+        <a class="card rank-5 diams"><span class="rank">5</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-6-diams">
+      <li>
+        <a class="card rank-6 diams"><span class="rank">6</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-7-diams">
+      <li>
+        <a class="card rank-7 diams"><span class="rank">7</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-8-diams">
+      <li>
+        <a class="card rank-8 diams"><span class="rank">8</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-9-diams">
+      <li>
+        <a class="card rank-9 diams"><span class="rank">9</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-10-diams">
+      <li>
+        <a class="card rank-10 diams"><span class="rank">10</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-j-diams">
+      <li>
+        <a class="card rank-j diams"><span class="rank">J</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-q-diams">
+      <li>
+        <a class="card rank-q diams"><span class="rank">Q</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-k-diams">
+      <li>
+        <a class="card rank-k diams"><span class="rank">K</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-a-diams">
+      <li>
+        <a class="card rank-a diams"><span class="rank">A</span><span class="suit">&diams;</span></a>
+      </li>
+    </template>
+    <template id="template-2-hearts">
+      <li>
+        <a class="card rank-2 hearts"><span class="rank">2</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-3-hearts">
+      <li>
+        <a class="card rank-3 hearts"><span class="rank">3</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-4-hearts">
+      <li>
+        <a class="card rank-4 hearts"><span class="rank">4</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-5-hearts">
+      <li>
+        <a class="card rank-5 hearts"><span class="rank">5</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-6-hearts">
+      <li>
+        <a class="card rank-6 hearts"><span class="rank">6</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-7-hearts">
+      <li>
+        <a class="card rank-7 hearts"><span class="rank">7</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-8-hearts">
+      <li>
+        <a class="card rank-8 hearts"><span class="rank">8</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-9-hearts">
+      <li>
+        <a class="card rank-9 hearts"><span class="rank">9</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-10-hearts">
+      <li>
+        <a class="card rank-10 hearts"><span class="rank">10</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-j-hearts">
+      <li>
+        <a class="card rank-j hearts"><span class="rank">J</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-q-hearts">
+      <li>
+        <a class="card rank-q hearts"><span class="rank">Q</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-k-hearts">
+      <li>
+        <a class="card rank-k hearts"><span class="rank">K</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-a-hearts">
+      <li>
+        <a class="card rank-a hearts"><span class="rank">A</span><span class="suit">&hearts;</span></a>
+      </li>
+    </template>
+    <template id="template-2-spades">
+      <li>
+        <a class="card rank-2 spades"><span class="rank">2</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-3-spades">
+      <li>
+        <a class="card rank-3 spades"><span class="rank">3</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-4-spades">
+      <li>
+        <a class="card rank-4 spades"><span class="rank">4</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-5-spades">
+      <li>
+        <a class="card rank-5 spades"><span class="rank">5</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-6-spades">
+      <li>
+        <a class="card rank-6 spades"><span class="rank">6</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-7-spades">
+      <li>
+        <a class="card rank-7 spades"><span class="rank">7</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-8-spades">
+      <li>
+        <a class="card rank-8 spades"><span class="rank">8</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-9-spades">
+      <li>
+        <a class="card rank-9 spades"><span class="rank">9</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-10-spades">
+      <li>
+        <a class="card rank-10 spades"><span class="rank">10</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-j-spades">
+      <li>
+        <a class="card rank-j spades"><span class="rank">J</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-q-spades">
+      <li>
+        <a class="card rank-q spades"><span class="rank">Q</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-k-spades">
+      <li>
+        <a class="card rank-k spades"><span class="rank">K</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-a-spades">
+      <li>
+        <a class="card rank-a spades"><span class="rank">A</span><span class="suit">&spades;</span></a>
+      </li>
+    </template>
+    <template id="template-2-clubs">
+      <li>
+        <a class="card rank-2 clubs"><span class="rank">2</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-3-clubs">
+      <li>
+        <a class="card rank-3 clubs"><span class="rank">3</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-4-clubs">
+      <li>
+        <a class="card rank-4 clubs"><span class="rank">4</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-5-clubs">
+      <li>
+        <a class="card rank-5 clubs"><span class="rank">5</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-6-clubs">
+      <li>
+        <a class="card rank-6 clubs"><span class="rank">6</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-7-clubs">
+      <li>
+        <a class="card rank-7 clubs"><span class="rank">7</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-8-clubs">
+      <li>
+        <a class="card rank-8 clubs"><span class="rank">8</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-9-clubs">
+      <li>
+        <a class="card rank-9 clubs"><span class="rank">9</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-10-clubs">
+      <li>
+        <a class="card rank-10 clubs"><span class="rank">10</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-j-clubs">
+      <li>
+        <a class="card rank-j clubs"><span class="rank">J</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-q-clubs">
+      <li>
+        <a class="card rank-q clubs"><span class="rank">Q</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-k-clubs">
+      <li>
+        <a class="card rank-k clubs"><span class="rank">K</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+    <template id="template-a-clubs">
+      <li>
+        <a class="card rank-a clubs"><span class="rank">A</span><span class="suit">&clubs;</span></a>
+      </li>
+    </template>
+  </body>
+</html>

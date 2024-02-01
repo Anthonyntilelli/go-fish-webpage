@@ -1,0 +1,25 @@
+{
+  "name": "go-fish-webpage",
+  "version": "0.0.1",
+  "description": "Go fish webpage written in TypeScript",
+  "main": "./dist/bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && live-server",
+    "watch": "tsc --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anthonyntilelli/go-fish-webpage.git"
+  },
+  "author": "Anthony Tilelli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Anthonyntilelli/go-fish-webpage/issues"
+  },
+  "homepage": "https://github.com/Anthonyntilelli/go-fish-webpage#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "typescript": "^5.3.3"
+  }
+}

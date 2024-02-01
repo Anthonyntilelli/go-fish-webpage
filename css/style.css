@@ -1,0 +1,72 @@
+.grid {
+  display: grid;
+  grid-template: 1fr 0.5fr 0.5fr 1fr / 0.25fr 1fr 1fr 0.25fr;
+  grid-template-areas:
+    "cLabel computerHand computerHand computerHand"
+    "cPoints deck deck hPoints"
+    ". status status ."
+    "humanHand humanHand humanHand hLabel";
+  min-height: 100vh;
+  row-gap: 1%;
+}
+
+.grid > * {
+  text-align: center;
+}
+
+.cLabel {
+  grid-area: cLabel;
+  font-size: 4em;
+}
+
+.computerHand {
+  grid-area: computerHand;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cPoints {
+  grid-area: cPoints;
+  font-size: 4em;
+}
+
+.deck_grid {
+  grid-area: deck;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hPoints {
+  grid-area: hPoints;
+  font-size: 4em;
+}
+
+.status {
+  grid-area: status;
+  font-size: 2em;
+}
+
+.hLabel {
+  grid-area: hLabel;
+  font-size: 4em;
+}
+
+.humanHand {
+  grid-area: humanHand;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body {
+  background: #88a65e 50%;
+  padding: 25px, 10px;
+}
+
+.footer {
+  padding-top: 2%;
+  text-align: center;
+}
+
+.header {
+  text-align: center;
+}
